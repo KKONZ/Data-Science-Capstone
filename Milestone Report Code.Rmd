@@ -15,7 +15,7 @@ output: html_document
 * ### Blogs
 * ### News
 
-This report is meant to be citizen data scientist friendly. The output is displayed in the rpubs report and the code is available in my github account. To get an idea of what we are working with, a table of the overall data sets is displayed below.
+This report is meant to be citizen data scientist friendly. The output is displayed in the rpubs report and the code is available in my github account. To get an idea of what we are working with, a table of some summary statistics from the full files are shown displayed below.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 
