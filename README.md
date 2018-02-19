@@ -1,2 +1,2 @@
 # Data-Science-Capstone
-Code for rpubs report, http://rpubs.com/Konzert/361755.
+Milestone rpubs report, https://github.com/KKONZ/Data-Science-Capstone.
