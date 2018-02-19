@@ -137,7 +137,7 @@ $(document).ready(function () {
 <li><h3 id="blogs">Blogs</h3></li>
 <li><h3 id="news">News</h3></li>
 </ul>
-<p>This report is meant to be citizen data scientist friendly. The output is displayed in the rpubs report and the code is available in my github account. To get an idea of what we are working with, a table of some summary statistics from the full files are shown displayed below.</p>
+<p>This report is meant to be citizen data scientist friendly and is written in a way that is meant to be generalized to a variety of text data. The report level function source code is set to echo = false here, and thus not shown in this report. That code is however available at github.com/KKONZ/Data-Sceince-Capstone. To get an idea of what we are working with, a table of some summary statistics from the full files are shown displayed below.</p>
 <pre class="r"><code>twitterPath &lt;- '~/final/en_US/en_US.twitter.txt'
 twitterSummary &lt;- textSummary(twitterPath)
 
@@ -190,7 +190,8 @@ formatTable(df)</code></pre>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>We can make some pretty solid deductions from the overviews of the three datasets provided by SwiftKey for the Data Science Capstone from Johns Hobpkins as describe above. However, what we have done so far does not provide much for actionable insights. For the final project, I will offer an interactive shiny application for clustered mean word2vec embeddings with t-sne reduction. There is a This will allow us to categorize similar posts for BI dashboards and targeted AB testing.</p>
+<p>We can make some pretty solid deductions from the overviews of the three datasets provided by SwiftKey for the Data Science Capstone from Johns Hobpkins as describe above. However, what we have done so far does not provide much for actionable insights. For the final project, we will create a predictive shiny app to finish a phrase from a given platform.</p>
+<p>For more computationally complex initiatives, it would be adventageous to use Gensim and Python. See my post here for a similar project of mine,<a href="https://kkonz.github.io/2017-12-10-topic-modeling-with-yelp-pizza2vec/" class="uri">https://kkonz.github.io/2017-12-10-topic-modeling-with-yelp-pizza2vec/</a>.</p>
 </div>
 
 
