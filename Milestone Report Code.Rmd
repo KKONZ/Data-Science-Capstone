@@ -1,0 +1,204 @@
+---
+title: "SwiftKeyMilestone"
+author: "Karl Konz"
+date: "February 18, 2018"
+output: html_document
+---
+
+# Milestone Report
+
+## Introduction
+
+### Exploratory Data Analysis of the most common words present in 3 of the major mediums of media consumption in the United States: 
+
+* ### Twitter
+* ### Blogs
+* ### News
+
+This report is meant to be citizen data scientist friendly. The output is displayed in the rpubs report and the code is available in my github account. To get an idea of what we are working with, a table of the overall data sets is displayed below.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+
+set.seed(123)
+library(R.utils)
+library(tm)
+library(dplyr)
+library(tidytext)
+library(wordcloud)
+library(viridis)
+library(data.table)
+library(stringi)
+library(ggplot2)
+library(gridExtra)
+library(grid)
+
+# Function to summarize overall data structure
+textSummary <- function(path){
+  data <- withTimeout(readLines(path, encoding = "UTF-8"
+                                , skipNul=FALSE),
+                      timeout = 10, 
+                      onTimeout = "error")
+  texArchSummary <- stri_stats_general(data)
+  return(data.frame(texArchSummary))
+}
+
+
+# Function to find term frequencies
+sampleTermFreq <-
+  function(path){  
+    data <- withTimeout(readLines(path
+                                , encoding = "UTF-8"
+                                , skipNul=TRUE),
+                      timeout = 10, 
+                      onTimeout = "error")
+  dataDF <- data.table(text = data )
+  rm(data)
+  Ndata <- nrow(dataDF)
+  dataDF <- dataDF[sample(1:Ndata, 0.005*Ndata), ]
+  rm(Ndata)
+  dataDF$text = iconv(dataDF$text, to="ASCII//TRANSLIT")
+  dataDF$text = removeWords(dataDF$text, stopwords("english"))
+  dataDF$text <- sapply(dataDF$text, tolower)
+  dataDF$text <- gsub("the", "", dataDF$text)
+  dataDF$text <- gsub("just", "", dataDF$text)
+  dataDF$text = stripWhitespace(dataDF$text)
+  data.corpus <- Corpus(DataframeSource(data.frame(
+    doc_id=row.names(dataDF[!is.na(dataDF$text), ]),
+    dataDF[!is.na(dataDF$text), "text"]
+   )))
+  rm(dataDF)
+  tdm <- TermDocumentMatrix(data.corpus)
+  rm(data.corpus)
+  m <- as.matrix(tdm)
+  rm(tdm)
+  v <- sort(rowSums(m),decreasing=TRUE)
+  rm(m)
+  d <- data.frame(word = names(v),freq=v)
+  rm(v)
+  return(d)
+  }
+
+# Format table
+formatTable <- function(data){
+  grid.table(data)
+}
+
+# function to create wordcloud
+wordCloud <- function(data){
+  wordcloud(data$word,data$freq, 
+          cale=c(8,.3),
+          min.freq=2,
+          max.words=100, 
+          random.order=T, 
+          rot.per=.15, 
+          colors=viridis(256), 
+          vfont=c("sans serif","plain"))
+}
+
+# Top Ten Most Frequent Words With Labels
+Plot <- function(data){
+  topFreq <- head(data, 10)
+  topFreq$word <- factor(topFreq$word)
+  p <- ggplot(data = topFreq, aes(x = reorder(topFreq$word, topFreq$freq), y = topFreq$freq)) 
+  p <- p + geom_point(stat = "identity")
+  p <- p + geom_text(aes(x=topFreq$word, y=topFreq$freq, ymax=topFreq$freq, label=topFreq$freq), 
+                hjust=ifelse(sign(topFreq$freq)>0, -.075, 0), 
+                vjust=-.75, 
+            position = position_dodge(width=1))
+  #p <- p +  coord_flip()
+  p <- p + xlab("10 Most Common Words") + ylab("Word Frequency")
+  p <- p + theme(panel.grid.major = element_blank(), 
+                 panel.grid.minor = element_blank(),
+                 panel.background = element_blank())
+  return(p)
+}
+```
+
+
+```{r message=FALSE, warning=FALSE, fig.height = 2.25}
+twitterPath <- '~/final/en_US/en_US.twitter.txt'
+twitterSummary <- textSummary(twitterPath)
+
+blogPath <- '~/final/en_US/en_US.blogs.txt'
+blogSummary <- textSummary(blogPath)
+
+newsPath <- '~/final/en_US/en_US.news.txt'
+newsSummary <- textSummary(newsPath)
+```
+
+_see https://github.com/kkonz/DataScienceCapstone for full markdown with report function calls_
+
+```{r  message=FALSE, warning=FALSE, fig.height = 2.25}
+df <- setNames(data.frame(twitterSummary, blogSummary, newsSummary,                
+                          row.names = c(
+                            "Number of Lines", 
+                            "Number of Non-blank Lines", 
+                            "Number of Characters", 
+                            "Number of Non-blank Characters")), 
+               c("twitter", "blogs", "news")
+               )
+formatTable(df)
+
+```
+
+
+
+Next .5% of the overall data is sampled, cleaned of casing, punctuation, and stopwords. The top 100 most frequent words are plotted below:
+
+## Twitter Word Cloud
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+twitterFreq <- sampleTermFreq(twitterPath)
+wordCloud(twitterFreq)
+```
+
+
+I am pleasantly not too surprised by the overall words from the twitter data set. I think of twitter as an incredibly fast medium that often is the first platform to report on major events. Here we see _get_ as the most commen word. Twitter is well known for having emotional posts, so _like_ as the second most frequent word is also not too surprising.
+
+## 10 Most Frequently Sampled Twitter Words
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+Plot(twitterFreq)
+```
+
+## Blog Word Cloud
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+blogFreq <- sampleTermFreq(blogPath)
+wordCloud(blogFreq )
+```
+
+Here we see many frequent words that would be expected from a blog, such as: time, know, people. 
+
+## 10 Most Frequently Sampled Blog Words
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+Plot(blogFreq)
+
+```
+
+
+## News Word Cloud
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+newsFreq <- sampleTermFreq(newsPath)
+wordCloud(newsFreq )
+```
+
+Said is by far the most frequently represented word in the news data set. It may also be worth reiterating that this is a comaparably much smaller than the other 2 sets, so this may be more prone to random chance. Seeing _said_ as the most common news words makes sense as well. Most are narative in essense and thus commonly in third person and taking statements from relevant people to a given news story.
+
+## 10 Most Frequently Sampled News Words
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+Plot(newsFreq)
+```
+
+
+# Conclusion
+
+We can make some pretty solid deductions from the overviews of the three datasets provided by SwiftKey for the Data Science Capstone from Johns Hobpkins as describe above. However, what we have done so far does not provide much for actionable insights. For the final project, I will offer an interactive shiny application for clustered mean word2vec embeddings with t-sne reduction. There is a  This will allow us to categorize similar posts for BI dashboards and targeted AB testing.
+
+
+
+
+
+
